@@ -2,6 +2,8 @@ name: Build Python Executable and Upload Release
 
 on:
   push:
+    branches:
+      - "**"
     paths:
       - "backend/**"
 
@@ -12,7 +14,7 @@ jobs:
     steps:
       # Checkout the repository
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Set up Python 3.12
       - name: Setup Python
