@@ -53,7 +53,7 @@ jobs:
           cd backend/dist
           tar -a -c -f app-package.zip .
 
-      # Upload the ZIP file to GitHub releases
+      # Upload the ZIP file to GitHub releases.
       - name: Upload to GitHub Release
         uses: ncipollo/release-action@v1
         with:
