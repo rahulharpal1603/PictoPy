@@ -1,0 +1,59 @@
+name: Build Python Executable and Upload Release
+
+on:
+  push:
+    paths:
+      - "backend/**"
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Python 3.12
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      # Switch to the backend directory
+      - name: Change to backend directory
+        run: cd backend
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          cd backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Run PyInstaller to generate the executable
+      - name: Build executable with PyInstaller
+        run: |
+          cd backend
+          pyinstaller main.py --onefile --distpath dist
+
+      # Copy the "app" folder into the same directory as the executable
+      - name: Copy app folder
+        run: |
+          cd backend
+          xcopy /E /I app dist/app
+
+      # Zip the folder containing the executable and the "app" folder
+      - name: Create ZIP package
+        run: |
+          cd backend/dist
+          tar -a -c -f app-package.zip .
+
+      # Upload the ZIP file to GitHub releases
+      - name: Upload to GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: backend/dist/app-package.zip
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }}
+          name: Release for ${{ github.ref_name }}
