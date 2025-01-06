@@ -66,5 +66,5 @@ def run_server():
 
 
 if __name__ == "__main__":
-    multiprocessing.freeze_support()  # Required for Windows
+    multiprocessing.freeze_support()  # Required for Windows.
     run_server()
