@@ -43,7 +43,8 @@ jobs:
       - name: Copy app folder
         run: |
           cd backend
-          robocopy app dist/app /e
+          mkdir backend/images
+          robocopy app dist/app /e ^& IF %ERRORLEVEL% LEQ 1 exit 0
 
       # Zip the folder containing the executable and the "app" folder
       - name: Create ZIP package
