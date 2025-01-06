@@ -43,7 +43,7 @@ jobs:
       - name: Copy app folder
         run: |
           cd backend
-          mkdir backend/images
+          mkdir dist/images
           robocopy app dist\app /e
           if ($LASTEXITCODE -le 1) { exit 0 }
 
