@@ -8,7 +8,7 @@ on:
       - "backend/**"
 
 jobs:
-  build:
+  build-windows:
     runs-on: windows-latest
 
     steps:
@@ -21,10 +21,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: 3.12
-
-      # Switch to the backend directory
-      - name: Change to backend directory
-        run: cd backend
 
       # Install dependencies
       - name: Install dependencies
@@ -51,13 +47,86 @@ jobs:
       - name: Create ZIP package
         run: |
           cd backend/dist
-          tar -a -c -f app-package.zip .
+          tar -a -c -f app-windows.zip .
 
-      # Upload the ZIP file to GitHub releases.
-      - name: Upload to GitHub Release
+      # Upload the ZIP file as an artifact
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-windows
+          path: backend/dist/app-windows.zip
+
+  build-ubuntu:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Set up Python 3.12
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          cd backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Run PyInstaller to generate the executable
+      - name: Build executable with PyInstaller
+        run: |
+          cd backend
+          pyinstaller main.py --onefile --distpath dist
+
+      # Copy the "app" folder into the same directory as the executable
+      - name: Copy app folder
+        run: |
+          cd backend
+          mkdir -p dist/app
+          cp -r app/* dist/app/
+
+      # Zip the folder containing the executable and the "app" folder
+      - name: Create ZIP package
+        run: |
+          cd backend/dist
+          zip -r app-ubuntu.zip .
+
+      # Upload the ZIP file as an artifact
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-ubuntu
+          path: backend/dist/app-ubuntu.zip
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-ubuntu]
+
+    steps:
+      # Download artifacts from both jobs
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: app-windows
+          path: artifacts
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: app-ubuntu
+          path: artifacts
+
+      # Upload both ZIP files to the same GitHub release
+      - name: Create GitHub release and upload assets
         uses: ncipollo/release-action@v1
         with:
-          artifacts: backend/dist/app-package.zip
+          artifacts: |
+            artifacts/app-windows.zip
+            artifacts/app-ubuntu.zip
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref_name }}
           name: Release for ${{ github.ref_name }}
