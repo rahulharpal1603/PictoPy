@@ -46,6 +46,7 @@ jobs:
       # Zip the folder containing the executable and the "app" folder
       - name: Create ZIP package
         run: |
+          del /q backend\dist\*
           cd backend/dist
           tar -a -c -f PictoPy_Windows.zip .
 
