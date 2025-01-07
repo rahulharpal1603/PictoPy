@@ -108,27 +108,32 @@ jobs:
     needs: [build-windows, build-ubuntu]
 
     steps:
-      # Generate a unique release name
-      - name: Generate unique release name
-        id: generate_name
+      # Generate a unique tag and release name
+      - name: Generate unique tag and release name
+        id: generate_identifiers
         run: |
-          RELEASE_NAME="release-$(date +'%d%m%Y-%H%M%S')-$(echo $GITHUB_SHA | cut -c1-8)"
+          DATE=$(date +'%d-%m-%Y-%H-%M-%S')
+          SHORT_HASH=$(echo $GITHUB_SHA | cut -c1-8)
+          TAG_NAME="v${DATE}-${SHORT_HASH}"
+          RELEASE_NAME="release-${DATE}-${SHORT_HASH}"
+          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
           echo "RELEASE_NAME=$RELEASE_NAME" >> $GITHUB_ENV
-          echo $RELEASE_NAME
+          echo "Generated Tag: $TAG_NAME"
+          echo "Generated Release Name: $RELEASE_NAME"
 
       # Download artifacts from both jobs
-      - name: Download artifacts
+      - name: Download Windows artifact
         uses: actions/download-artifact@v3
         with:
           name: app-windows
           path: artifacts
-      - name: Download artifacts
+      - name: Download Ubuntu artifact
         uses: actions/download-artifact@v3
         with:
           name: app-ubuntu
           path: artifacts
 
-      # Upload both ZIP files to the same GitHub release
+      # Create GitHub release and upload assets
       - name: Create GitHub release and upload assets
         uses: ncipollo/release-action@v1
         with:
@@ -136,5 +141,5 @@ jobs:
             artifacts/app-windows.zip
             artifacts/app-ubuntu.zip
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref_name }}
+          tag: ${{ env.TAG_NAME }}
           name: ${{ env.RELEASE_NAME }}
