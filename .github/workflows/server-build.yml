@@ -46,16 +46,15 @@ jobs:
       # Zip the folder containing the executable and the "app" folder
       - name: Create ZIP package
         run: |
-          del /q backend\dist\*
           cd backend/dist
-          tar -a -c -f PictoPy_Windows.zip .
+          tar -a -c -f PictoPy-Windows.zip .
 
       # Upload the ZIP file as an artifact
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: PictoPy_Windows
-          path: backend/dist/PictoPy_Windows.zip
+          name: PictoPy-Windows
+          path: backend/dist/PictoPy-Windows.zip
 
   build-ubuntu:
     runs-on: ubuntu-latest
@@ -96,14 +95,14 @@ jobs:
       - name: Create ZIP package
         run: |
           cd backend/dist
-          zip -r PictoPy_Ubuntu.zip .
+          zip -r PictoPy-Ubuntu.zip .
 
       # Upload the ZIP file as an artifact
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: PictoPy_Ubuntu
-          path: backend/dist/PictoPy_Ubuntu.zip
+          name: PictoPy-Ubuntu
+          path: backend/dist/PictoPy-Ubuntu.zip
 
   build-macos:
     runs-on: macos-latest
@@ -144,14 +143,14 @@ jobs:
       - name: Create ZIP package
         run: |
           cd backend/dist
-          zip -r PictoPy_MacOS.zip .
+          zip -r PictoPy-MacOS.zip .
 
       # Upload the ZIP file as an artifact
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: PictoPy_MacOS
-          path: backend/dist/PictoPy_MacOS.zip
+          name: PictoPy-MacOS
+          path: backend/dist/PictoPy-MacOS.zip
 
   release:
     runs-on: ubuntu-latest
@@ -175,17 +174,17 @@ jobs:
       - name: Download Windows artifact
         uses: actions/download-artifact@v3
         with:
-          name: PictoPy_Windows
+          name: PictoPy-Windows
           path: artifacts
       - name: Download Ubuntu artifact
         uses: actions/download-artifact@v3
         with:
-          name: PictoPy_Ubuntu
+          name: PictoPy-Ubuntu
           path: artifacts
       - name: Download MacOS artifact
         uses: actions/download-artifact@v3
         with:
-          name: PictoPy_MacOS
+          name: PictoPy-MacOS
           path: artifacts
 
       # Create GitHub release and upload assets
@@ -193,9 +192,9 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: |
-            artifacts/PictoPy_Windows.zip
-            artifacts/PictoPy_Ubuntu.zip
-            artifacts/PictoPy_MacOS.zip
+            artifacts/PictoPy-Windows.zip
+            artifacts/PictoPy-Ubuntu.zip
+            artifacts/PictoPy-MacOS.zip
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ env.TAG_NAME }}
           name: ${{ env.RELEASE_NAME }}
