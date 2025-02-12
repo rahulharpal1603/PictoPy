@@ -1,2 +1,2 @@
-package-lock.json binary
-yarn.lock binary
+package-lock.json -diff
+yarn.lock -diff
