@@ -55,6 +55,23 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
+      - name: Check target folder size (windows)
+        if: matrix.platform == 'windows-latest'
+        shell: pwsh
+        run: |
+          $size = (Get-ChildItem -Path "frontend/src-tauri/target" -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB
+          echo "Target folder size: $size MB"
+
+      - name: Check target folder size (macOS/Linux)
+        if: matrix.platform != 'windows-latest'
+        run: |
+          if [ -d "frontend/src-tauri/target" ]; then
+            size=$(du -sm "frontend/src-tauri/target" | cut -f1)
+            echo "Target folder size: $size MB"
+          else
+            echo "Target folder does not exist yet"
+          fi
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
