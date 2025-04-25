@@ -1,4 +1,4 @@
-name: "PR Check for PictoPy_"
+name: "PR Check for PictoPy"
 on:
   pull_request_review:
     types: [submitted]
