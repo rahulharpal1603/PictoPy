@@ -1,5 +1,5 @@
 import sqlite3
-import bcrypt  # Add this import
+import bcrypt
 from app.config.settings import DATABASE_PATH
 
 def db_create_albums_table() -> None:
@@ -132,3 +132,13 @@ def db_remove_images_from_album(album_id: str, image_ids: list[str]):
     )
     conn.commit()
     conn.close()
+
+def verify_album_password(album_id: str, password: str) -> bool:
+    conn = sqlite3.connect(DATABASE_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT password_hash FROM albums WHERE album_id = ?", (album_id,))
+    row = cursor.fetchone()
+    conn.close()
+    if not row or not row[0]:
+        return False
+    return bcrypt.checkpw(password.encode("utf-8"), row[0].encode("utf-8"))

@@ -13,7 +13,8 @@ from app.database.albums import (
     db_get_album_images,
     db_add_images_to_album,
     db_remove_image_from_album,
-    db_remove_images_from_album
+    db_remove_images_from_album,
+    verify_album_password
 )
 
 router = APIRouter()
@@ -56,6 +57,13 @@ def update_album(
 ):
     db_update_album(album_id, name, description, is_hidden, password)
     return {"success": True, "msg": "Album updated successfully"}
+
+@router.post("/{album_id}/unlock")
+def unlock_album(album_id: str, password: str = Body(...)):
+    if not verify_album_password(album_id, password):
+        raise HTTPException(status_code=401, detail="Incorrect password")
+    return {"success": True}
+
 
 @router.delete("/{album_id}")
 def delete_album(album_id: str):
